@@ -44,7 +44,8 @@
 int main()
 {
     int n;
-    while (scanf("%d", &n) != EOF) {
+    while (scanf("%d", &n) != EOF)
+    {
         printf("S(n) = %d\n", 2*n*n + 2*n +1);
     }
     return 0;
