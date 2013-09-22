@@ -32,8 +32,7 @@ int Fib(int n)
     int i, f, f1, f2, temp;
     f1 = 1;
     f2 = 0;
-    for (i = 2;i <= n;i++)
-    {
+    for (i = 2;i <= n;i++) {
         temp = f;
         f = (f1 + f2) % 100000;
         f2 = f1;
