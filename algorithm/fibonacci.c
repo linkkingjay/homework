@@ -1,14 +1,31 @@
 #include<stdio.h>
 #include<time.h>
+#include<stdlib.h>
+#include<string.h>
+
 int main()
 {
     int F (int);
     int Fib (int);
-    int n;
+    int (*Fun)(int);
+    int m, n, t;
+    char cmd, msg[30];
     time_t st, ct;
 
-    for(n = 0, time(&st), time(&ct);difftime(st, ct) <= 60;time(&st), n++)
-        printf("n=%d,Fib(n)=%05d\n", n, Fib(n));
+    while (scanf("%c", &cmd) != EOF) {
+        system("clear");
+
+        if (cmd == '0')
+            Fun = F;
+        else if (cmd == '1')
+            Fun = Fib;
+        else continue;
+
+        for(n = 0, time(&st), time(&ct);difftime(st, ct) <= 60;time(&st), n++) {
+            t = Fun(n);
+            printf("n=%d,Fun(n)=%05d\n", n, t);
+        }
+    }
 
     return 0;
 }
