@@ -24,10 +24,19 @@ def closure(I, f):
     ret.sort()
     return ret
 
-# 状态集合I的a弧转换，是状态集合I中那些可以从I中的某一状态经过一条a弧而到达的状态
+# 状态集合T0的a弧转换，是状态集合I中那些可以从TO中的某一状态经过一条a弧而到达的状态
 # 的全体
 def move(T0, a, f):
     ret = list()
+    for s in T0:
+        for i in f:
+            if i[0] == s and i[1] == a:
+                try:
+                    ret.index(i[2])
+                except:
+                    ret.append(i[2])
+
+    ret.sort()
     return ret
 
 def main():
@@ -40,7 +49,7 @@ def main():
             "S": [0],
             "Z": [2,4]
             }
-    print closure([0],f)
+    print move([0,2],'b',f)
 
 if __name__ == '__main__':
     main()
