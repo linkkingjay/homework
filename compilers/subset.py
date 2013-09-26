@@ -6,14 +6,22 @@ def subset(NFA):
     return DFA
 
 # 求状态集合I的闭包，是状态集I中的任何状态S经过任意条空弧而能到达的集合状态集合
-# todo:删除重复添加状态
 def closure(I, f):
     ret = list()
     for s in I:
+        # 把s本身添加到结果中去
+        try:
+            ret.index(s)
+        except:
+            ret.append(s)
         for i in f:
-            if i[0] == s and i[1] == 'null':
-                ret.append(i[2])
-                I.append(i[2])
+            if i[0] == s and i[1] == 'ε':
+                try:
+                    ret.index(i[2])
+                except:
+                    ret.append(i[2])
+                    I.append(i[2])
+    ret.sort()
     return ret
 
 # 状态集合I的a弧转换，是状态集合I中那些可以从I中的某一状态经过一条a弧而到达的状态
@@ -23,8 +31,8 @@ def move(T0, a, f):
     return ret
 
 def main():
-    f = [[0,'a',0],[0,'a',3],[0,'b',1],[0,'b',1],[1,'b',2],[2,'a',2],[2,'null',1]
-            ,[1,'null',0]]
+    f = [[0,'ε',1],[0,'ε',7],[1,'ε',2],[1,'ε',4],[0,'b',1],[1,'b',2],[2,'a',2],[2,'b',2]
+            ,[3,'a',4],[0,'ε',2]]
     NFA = {
             "K": [0,1,2,3,4],
             "Sigma": ['a','b'],
@@ -32,7 +40,7 @@ def main():
             "S": [0],
             "Z": [2,4]
             }
-    print subset(NFA)
+    print closure([0],f)
 
 if __name__ == '__main__':
     main()
