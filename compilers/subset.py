@@ -20,28 +20,23 @@ def subset(NFA):
         for s in NFA['Sigma']:
             m = move(k, s, NFA['f'])
             c = closure(m, NFA['f'])
-            try:
-                K.index(c) 
-            except:
+
+            if c not in K:
                 K.append(c)
 
-            try:
-                Sigma.index(s)
-            except:
+            if s not in Sigma:
                 Sigma.append(s)
 
-            try:
-                f.index([k, s, c])
-            except:
+            if [k, s, c] not in f:
                 f.append([k, s, c])
+
     for k in K:
         flag = 1
         for nz in NFA['Z']:
-            try:
-                k.index(nz)
-            except:
+            if nz not in k:
                 flag = 0
                 break
+
         if flag == 1:
             Z.append(k)
 
@@ -52,17 +47,14 @@ def closure(I, f):
     ret = list()
     for s in I:
         # 把s本身添加到结果中去
-        try:
-            ret.index(s)
-        except:
+        if s not in ret:
             ret.append(s)
         for i in f:
             if i[0] == s and i[1] == 'e':
-                try:
-                    ret.index(i[2])
-                except:
+                if i[2] not in ret:
                     ret.append(i[2])
-                    I.append(i[2])
+                    if i[2] not in I:
+                        I.append(i[2])
     ret.sort()
     return ret
 
@@ -72,15 +64,14 @@ def move(T0, a, f):
     for s in T0:
         for i in f:
             if i[0] == s and i[1] == a:
-                try:
-                    ret.index(i[2])
-                except:
+                if i[2] not in ret:
                     ret.append(i[2])
 
     ret.sort()
     return ret
 
 def main():
+    # 测试数据1
     NFA = {
             "K": range(1, 5),
             "Sigma": ['a','b'],
@@ -88,6 +79,7 @@ def main():
             "S": [0],
             "Z": [2,4]
             }
+    # 测试数据2
     NFA1 = {
             "K": range(1, 11),
             "Sigma": ['a','b'],
@@ -97,7 +89,9 @@ def main():
             }
     c = closure(NFA1['S'], NFA1['f'])
     m = move(c, 'a', NFA1['f'])
-    print subset(NFA1)
+    DFA = subset(NFA1)
+    for i in DFA.viewvalues(): 
+        print i
 
 if __name__ == '__main__':
     main()

@@ -50,14 +50,10 @@ def convex_hull(points):
 
             # 如果符合条件，就添加到结果中去
             if ret == True:
-                try: 
-                    result.index(points[i])
-                except:
+                if points[i] not in result:
                     result.append(points[i])
 
-                try: 
-                    result.index(points[j])
-                except:
+                if points[j] not in result:
                     result.append(points[j])
 
     result.sort()
