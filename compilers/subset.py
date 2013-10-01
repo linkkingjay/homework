@@ -94,8 +94,13 @@ def main():
     c = closure(NFA1['S'], NFA1['f'])
     m = move(c, 'a', NFA1['f'])
     DFA = subset(NFA1)
-    for i in DFA.viewvalues(): 
-        print i
+    for (k, v) in DFA.items():
+        if k != 'f':
+            print k,':',v
+        else:
+            print 'f:'
+            for i in v:
+                print i
 
 if __name__ == '__main__':
     main()
