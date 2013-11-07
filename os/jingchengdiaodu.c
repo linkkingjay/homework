@@ -43,16 +43,16 @@ void sort()
 void input()
 { 
     int i,num; 
-    printf("\n ¿¿¿¿¿¿?"); 
+    printf("\n è¯·è¾“å…¥è¿›ç¨‹å·?"); 
     scanf("%d",&num); 
     for(i=0;i<num;i++) { 
-        printf("\n ¿¿¿No.%d:\n",i); 
+        printf("\n è¿›ç¨‹å·No.%d:\n",i); 
         p=getpch(PCB); 
-        printf("\n ¿¿¿¿¿:"); 
+        printf("\n è¿›ç¨‹å:"); 
         scanf("%s",p->name); 
-        printf("\n ¿¿¿¿¿¿¿:"); 
+        printf("\n è¿›ç¨‹ä¼˜å…ˆæ•°:"); 
         scanf("%d",&p->super); 
-        printf("\n ¿¿¿¿¿¿¿¿:"); 
+        printf("\n è¿›ç¨‹è¿è¡Œæ—¶é—´:"); 
         scanf("%d",&p->ntime); 
         printf("\n"); 
         p->rtime=0;p->state='w'; 
@@ -87,10 +87,10 @@ void disp(PCB * pr)
 void check()
 { 
     PCB* pr; 
-    printf("\n **** ¿¿¿¿¿¿¿¿¿¿:%s",p->name);
+    printf("\n **** å½“å‰æ­£åœ¨è¿è¡Œçš„è¿›ç¨‹æ˜¯:%s",p->name);
     disp(p); 
     pr=ready; 
-    printf("\n **** ¿¿¿¿¿¿¿¿¿:\n");
+    printf("\n **** å½“å‰å°±ç»ªé˜Ÿåˆ—çŠ¶æ€ä¸º:\n");
     while(pr!=NULL) { 
         disp(pr); 
         pr=pr->link; 
@@ -99,7 +99,7 @@ void check()
 
 void destroy()
 { 
-    printf("\n ¿¿ [%s] ¿¿¿.\n",p->name); 
+    printf("\n è¿›ç¨‹ [%s] å·²å®Œæˆ.\n",p->name); 
     free(p); 
 } 
 
@@ -130,9 +130,9 @@ void main()
         p->state='R'; 
         check(); 
         running(); 
-        printf("\n ¿¿¿¿¿¿......"); 
+        printf("\n æŒ‰ä»»æ„é”®ç»§ç»­......"); 
         ch=getchar(); 
     } 
-    printf("\n\n ¿¿¿¿¿¿.\n"); 
+    printf("\n\n è¿›ç¨‹å·²ç»å®Œæˆ.\n"); 
     ch=getchar(); 
 } 
