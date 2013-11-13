@@ -20,64 +20,86 @@ struct pcb {
 };
 
 typedef struct pcb PCB; 
-PCB *wait, *ready1, *ready2, *ready3, *p, *tail1, *tail2, *tail3; 
+PCB *wait, *ready1, *ready2, *ready3, *p;
+
+void add_to_tail(PCB *tail, PCB *t)
+{
+    t->next    = tail->next;
+    tail->next = t;
+    tail       = t;
+}
 
 // 添加到等待队列
 void add()
 {
-    p->next = wait->next;
-    wait->next = p;
-}
-
-void queue()
-{ 
-    if (ready1 == NULL) { // 如果第一就绪队列为空，把p插入队首
-        p->next = NULL;
-        ready1  = p;
-        tail1   = p;
-    } else { // 否则根据p已经运行的时间片，决定把它插入到哪一个队列
-        switch (p->times) {
-            case 0: // 第一次运行，插入到第二队列中去
-                p->next = ready2;
-                ready2 = p;
-                tail1->next = ready2;
+    PCB *pw = wait;
+    if (pw->next == NULL) {
+        pw->next = p;
+    } else {
+        while (pw->next != NULL) {
+            if (pw->next->itime >= p->itime) {
+                p->next = pw->next;
+                pw->next = p;
                 break;
-            case 1: case 2: // 第二次或之后运行，插入到第三队列中去
-                p->next = ready3;
-                ready3 = p;
-                tail2->next = ready3;
-                break;
-            default:
-                break;
+            }
+            pw = pw->next;
+        }
+        if (pw->next == NULL) {
+            pw->next = p;
         }
     }
-} 
+}
+
 
 // 检查等待队列中有没有进程已经就绪
 void check_ready()
 {
-    PCB *p, *q;
-    p = wait;
+    PCB *pw, *q, *cur, *tmp;
+    pw = wait;
     
-    while (p->next != NULL) {
-        if (p->next->itime == cpu_time) { // 
-            // 用q来暂时存储这个结点，避免对p进行直接操作
-            q = p->next;
+    while (pw->next != NULL) {
+        if (pw->next->itime == cpu_time) { // 
+            // 用q来暂时存储这个结点，避免对pw进行直接操作
+            q = pw->next;
 
             // 从等待队列删去这个结点
-            p->next = q->next;
+            pw->next = q->next;
 
-            // 把这个结点插入到第一就绪队列队尾
-            q->next = tail1->next;
-            tail1->next = q;
-            tail1 = q;
-
-            // 如果是队尾元素了，结束循环
-            if (p->next == NULL) {
-                break;
+            // 如果这时候正在执行的进程不是在第一队列，则应该出现抢占CPU
+            cur = ready1->next;
+            if (cur == NULL) {
+                // 把正在执行的进程调到当前队列的队尾
+                if ((cur = ready2->next) != NULL) { // 在第二队列
+                    cpu_count = 0;
+                    ready2 = ready2->next;
+                    tmp = ready2;
+                    while(tmp->next != NULL) {
+                        tmp = tmp->next;
+                    }
+                    cur->next = NULL;
+                    tmp->next = cur;
+                } else if ((cur = ready3->next) != NULL) { // 在第三队列
+                    cpu_count = 0;
+                    ready3 = ready3->next;
+                    tmp = ready3;
+                    while(tmp->next != NULL) {
+                        tmp = tmp->next;
+                    }
+                    cur->next = NULL;
+                    tmp->next = cur;
+                }
             }
+            // 把这个结点插入到第一就绪队列队尾
+            tmp = ready1;
+            while (tmp->next != NULL) {
+                tmp = tmp->next;
+            }
+            q->next = NULL;
+            tmp->next = q;
+
+            continue;
         }
-        p = p->next;
+        pw = pw->next;
     }
 }
 
@@ -104,24 +126,25 @@ void input()
         p->next = NULL; 
         add();
         p = NULL;
-    } 
+    }
 } 
 
 void disp(PCB * pr)
 { 
-    printf("\n qname \t state \t itime \t ndtime \t runtime \n"); 
+    printf("\n qname \t state \t itime \t ntime \t rtime \t times\n"); 
     printf("|%s\t",pr->name); 
     printf("|%c\t",pr->state); 
     printf("|%d\t",pr->itime); 
     printf("|%d\t",pr->ntime); 
     printf("|%d\t",pr->rtime); 
+    printf("|%d\t",pr->times); 
     printf("\n"); 
 } 
  
  
 void check()
 { 
-    PCB *pr, *pw; 
+    PCB *pr1, *pr2, *pr3, *pw; 
     printf("\n **** 当前正在运行的进程是:");
     if (p != NULL) {
         printf("%s", p->name);
@@ -130,11 +153,34 @@ void check()
         printf("NULL\n");
     }
 
-    pr = ready1->next; 
-    printf("\n **** 当前就绪队列状态为:\n");
-    while(pr != NULL) { 
-        disp(pr); 
-        pr=pr->next; 
+    pr1 = ready1->next; 
+    if (p != NULL && p == pr1) {
+        pr1 = pr1->next;
+    }
+    printf("\n **** 当前就绪队列1状态为:\n");
+    while(pr1 != NULL) { 
+        disp(pr1);
+        pr1 = pr1->next; 
+    }
+
+    pr2 = ready2->next; 
+    if (p != NULL && p == pr2) {
+        pr2 = pr2->next;
+    }
+    printf("\n **** 当前就绪队列2状态为:\n");
+    while(pr2 != NULL) { 
+        disp(pr2);
+        pr2 = pr2->next; 
+    }
+
+    pr3 = ready3->next; 
+    if (p != NULL && p == pr1) {
+        pr3 = pr3->next;
+    }
+    printf("\n **** 当前就绪队列3状态为:\n");
+    while(pr3 != NULL) { 
+        disp(pr3);
+        pr3 = pr3->next; 
     }
 
     pw = wait->next;
@@ -148,60 +194,90 @@ void check()
 void destroy()
 { 
     printf("\n 进程 [%s] 已完成.\n",p->name); 
-    free(p); 
+    free(p);
+    p = NULL;
 } 
 
 void running()
 { 
+    PCB *tmp;
     (p->rtime)++; 
     cpu_count++;
     if (p->rtime == p->ntime) { // 任务完成
         cpu_count = 0;
         destroy();
-    } else if (cpu_count == CPUTIME[p->times]) { // 用完时间片了
+    } else if (cpu_count == CPUTIME[p->times]) { // 用完时间片了，掉到下一队列
         cpu_count = 0;
-        if (ready1 == NULL) { // 如果已经是最后一个了
-            ready1 = p;
+        p->times++;
+        p->next = NULL;
+        printf("\n%d\n\n", p->times);
+        if (p->times == 1) {
+            tmp = ready2;
+            while (tmp->next != NULL) {
+                tmp = tmp->next;
+            }
+            tmp->next = p;
         } else {
-            tail1->next = p;
-            tail1 = p;
+            tmp = ready3;
+            while (tmp->next != NULL) {
+                tmp = tmp->next;
+            }
+            tmp->next = p;
         }
     } else { // 任务没完成，时间片也还没用完
-        p->next = ready1;
-        ready1 = p;
+        if (p->times == 0) {
+            p->next = ready1->next;
+            ready1->next = p;
+        } else if (p->times == 1) {
+            p->next = ready2->next;
+            ready2->next = p;
+        } else {
+            p->next = ready3->next;
+            ready3->next = p;
+        }
     }
 } 
 void main()
 { 
     char ch; 
+    PCB *ready;
     SIZE = sizeof (struct pcb);
     // 初始化头结点
-    wait = getpch(PCB);
-    ready1 = getpch(PCB);
-    ready2 = getpch(PCB);
-    ready3 = getpch(PCB);
-    tail1 = ready1;
-    tail2 = ready2;
-    tail3 = ready3;
+    wait        = getpch(PCB);
+    ready1      = getpch(PCB);
+    ready2      = getpch(PCB);
+    ready3      = getpch(PCB);
+    wait->next  = NULL;
     input(); 
 
     
-    while(wait != NULL) { // 只要还有进程在等待就继续
+    while(wait->next != NULL || ready1->next != NULL || ready2->next != NULL
+            || ready3->next != NULL) { // 只要还有进程在等待就继续
         ch = getchar(); 
         cpu_time++; 
 
         printf("\n The executed cpu_time:%d \n",cpu_time); 
-        check(); 
         check_ready();
-        if (ready1->next == NULL) { // 如果当前没有就绪的进程就跳过
-            continue;
+
+        ready = NULL;
+        if (ready1->next != NULL) {
+            ready = ready1;
+        } else if (ready2->next != NULL) {
+            ready = ready2;
+        } else if (ready3->next != NULL) {
+            ready = ready3;
+        }
+        if (ready != NULL) {
+            p = ready->next;
+            ready->next = p->next;
+            p->next = NULL; 
+            p->state = 'R'; 
+            running(); 
+            check();
+        } else {
+            check();
         }
 
-        p = ready1->next; 
-        ready1->next = p->next; 
-        p->next = NULL; 
-        p->state = 'R'; 
-        running(); 
         printf("\n 按任意键继续......"); 
         ch = getchar(); 
     } 
