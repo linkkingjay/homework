@@ -4,7 +4,6 @@
 #define getpch(type) (type*)malloc(SIZE) 
 
 
-int CPUTIME[3] = {2, 4, 8};
 int cpu_count = 0;
 int cpu_time = 0;
 int SIZE;
@@ -22,13 +21,6 @@ struct pcb {
 typedef struct pcb PCB; 
 PCB *wait, *ready1, *ready2, *ready3, *p;
 
-void add_to_tail(PCB *tail, PCB *t)
-{
-    t->next    = tail->next;
-    tail->next = t;
-    tail       = t;
-}
-
 // 添加到等待队列
 void add()
 {
@@ -44,6 +36,7 @@ void add()
             }
             pw = pw->next;
         }
+        // 遍历到队尾了
         if (pw->next == NULL) {
             pw->next = p;
         }
@@ -71,20 +64,24 @@ void check_ready()
                 // 把正在执行的进程调到当前队列的队尾
                 if ((cur = ready2->next) != NULL) { // 在第二队列
                     cpu_count = 0;
-                    ready2 = ready2->next;
                     tmp = ready2;
+                    ready2->next = cur->next;
+
                     while(tmp->next != NULL) {
                         tmp = tmp->next;
                     }
+                    cur->state = 'R';
                     cur->next = NULL;
                     tmp->next = cur;
                 } else if ((cur = ready3->next) != NULL) { // 在第三队列
                     cpu_count = 0;
-                    ready3 = ready3->next;
                     tmp = ready3;
+                    ready3->next = cur->next;
+
                     while(tmp->next != NULL) {
                         tmp = tmp->next;
                     }
+                    cur->state = 'R';
                     cur->next = NULL;
                     tmp->next = cur;
                 }
@@ -122,7 +119,7 @@ void input()
 
         p->rtime=0;
         p->times = 0; 
-        p->state='w'; 
+        p->state='W'; 
         p->next = NULL; 
         add();
         p = NULL;
@@ -206,8 +203,9 @@ void running()
     if (p->rtime == p->ntime) { // 任务完成
         cpu_count = 0;
         destroy();
-    } else if (cpu_count == CPUTIME[p->times]) { // 用完时间片了，掉到下一队列
+    } else if (cpu_count == (2 << p->times)) { // 用完时间片了，掉到下一队列。
         cpu_count = 0;
+        p->state = 'R';
         p->times++;
         p->next = NULL;
         printf("\n%d\n\n", p->times);
@@ -248,6 +246,9 @@ void main()
     ready2      = getpch(PCB);
     ready3      = getpch(PCB);
     wait->next  = NULL;
+    ready1->next = NULL;
+    ready2->next = NULL;
+    ready3->next = NULL;
     input(); 
 
     
@@ -273,10 +274,8 @@ void main()
             p->next = NULL; 
             p->state = 'R'; 
             running(); 
-            check();
-        } else {
-            check();
         }
+        check();
 
         printf("\n 按任意键继续......"); 
         ch = getchar(); 
