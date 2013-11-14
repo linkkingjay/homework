@@ -4,7 +4,7 @@
 #define getpch(type) (type*)malloc(SIZE) 
 
 
-int cpu_count = 0;
+int TIME_PIECE = 0;
 int cpu_time = 0;
 int SIZE;
 
@@ -63,7 +63,7 @@ void check_ready()
             if (cur == NULL) {
                 // 把正在执行的进程调到当前队列的队尾
                 if ((cur = ready2->next) != NULL) { // 在第二队列
-                    cpu_count = 0;
+                    TIME_PIECE = 0;
                     tmp = ready2;
                     ready2->next = cur->next;
 
@@ -74,7 +74,7 @@ void check_ready()
                     cur->next = NULL;
                     tmp->next = cur;
                 } else if ((cur = ready3->next) != NULL) { // 在第三队列
-                    cpu_count = 0;
+                    TIME_PIECE = 0;
                     tmp = ready3;
                     ready3->next = cur->next;
 
@@ -171,7 +171,7 @@ void check()
     }
 
     pr3 = ready3->next; 
-    if (p != NULL && p == pr1) {
+    if (p != NULL && p == pr3) {
         pr3 = pr3->next;
     }
     printf("\n **** 当前就绪队列3状态为:\n");
@@ -199,16 +199,15 @@ void running()
 { 
     PCB *tmp;
     (p->rtime)++; 
-    cpu_count++;
+    TIME_PIECE++;
     if (p->rtime == p->ntime) { // 任务完成
-        cpu_count = 0;
+        TIME_PIECE = 0;
         destroy();
-    } else if (cpu_count == (2 << p->times)) { // 用完时间片了，掉到下一队列。
-        cpu_count = 0;
+    } else if (TIME_PIECE == (2 << p->times)) { // 用完时间片了，掉到下一队列。
+        TIME_PIECE = 0;
         p->state = 'R';
         p->times++;
         p->next = NULL;
-        printf("\n%d\n\n", p->times);
         if (p->times == 1) {
             tmp = ready2;
             while (tmp->next != NULL) {
@@ -235,7 +234,7 @@ void running()
         }
     }
 } 
-void main()
+int main()
 { 
     char ch; 
     PCB *ready;
@@ -250,12 +249,10 @@ void main()
     ready2->next = NULL;
     ready3->next = NULL;
     input(); 
-
     
     while(wait->next != NULL || ready1->next != NULL || ready2->next != NULL
             || ready3->next != NULL) { // 只要还有进程在等待就继续
         ch = getchar(); 
-        cpu_time++; 
 
         printf("\n The executed cpu_time:%d \n",cpu_time); 
         check_ready();
@@ -279,7 +276,9 @@ void main()
 
         printf("\n 按任意键继续......"); 
         ch = getchar(); 
-    } 
+        cpu_time++; 
+    }
     printf("\n\n 进程已经完成.\n"); 
     ch=getchar(); 
+    return 0;
 } 
