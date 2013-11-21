@@ -77,14 +77,23 @@ void check_ready()
     pr = ready;
     while (pw->next != NULL) {
         if (pw->next->itime == CPU_TIME) {
+            // q为可以进入就绪队列的作业
             q = pw->next;
             pw->next = q->next;
             
+            // 按所需服务时间排序，插入到合适位置
             while (pr->next != NULL) {
+                if (pr->next->ntime > q->ntime) {
+                    q->next = pr->next;
+                    pr->next = q;
+                    break;
+                }
                 pr = pr->next;
             }
-            q->next = NULL;
-            pr->next = q;
+            if (pr->next == NULL) {
+                q->next = NULL;
+                pr->next = q;
+            }
 
             continue;
         }
