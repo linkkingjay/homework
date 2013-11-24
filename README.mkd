@@ -1,8 +1,13 @@
 #My Homework
 - - -
 
-## algorithm
-### [算法设计与分析基础](http://book.douban.com/subject/1968704/)
+## Book:
 
-## compilers
-### [编译原理](http://book.douban.com/subject/1239865/)
+- [算法设计与分析基础](http://book.douban.com/subject/1968704/)
+- [编译原理](http://book.douban.com/subject/1239865/)
+- [汇编语言](http://book.douban.com/subject/3037562/)
+- [计算机操作系统](http://book.douban.com/subject/1058576/)
+- [编程珠玑](http://book.douban.com/subject/3227098/)
+- [算法导论](http://book.douban.com/subject/20432061/)
+- [七周七语言](http://book.douban.com/subject/10555435/)
+- [Ruby编程语言](http://book.douban.com/subject/3329887/)
