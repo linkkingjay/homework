@@ -24,10 +24,31 @@ fun get_substitutions1(xss, s) =
                 then valOf(all_except_option(s, xs)) @ get_substitutions1(xss', s)
                 else get_substitutions1(xss', s)
 
+(* function 1(c) *)
+fun get_substitutions2(xss, s) =
+  let fun aux(xss, acc) =
+        case xss of
+          [] => acc
+        | xs::xss' => if isSome(all_except_option(s, xs))
+                      then aux(xss', valOf(all_except_option(s, xs)) @ acc)
+                      else aux(xss', acc)
+  in
+    aux(xss, [])
+  end
 
-val test1 = all_except_option("string", ["string"]) = SOME []
+(* function 1(d) *)
+fun similar_names(xss, {first=X, middle=Y, last=Z}) =
+  let fun produce(xs, x) =
+        case xs of
+          [] => []
+        | x'::xs' => { first = x', middle = Y, last = Z } :: produce(xs', x)
+  in
+    case xss of
+      [] => {first=X, middle=Y, last=Z}::[]
+    | xs::xss' => {first=X, middle=Y, last=Z} :: produce(get_substitutions1(xss, X), X)
+  end
 
-val test2 = get_substitutions1([["foo"],["there"]], "foo") = []
+
 
 (* you may assume that Num is always used with values 2, 3, ..., 10
    though it will not really come up *)
