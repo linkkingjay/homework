@@ -39,8 +39,6 @@ var generateTrees = function(n) {
   return func(1, n);
 };
 
-console.log(generateTrees(1));
-
 function TreeNode(val) {
   this.val = val;
   this.left = this.right = null;
